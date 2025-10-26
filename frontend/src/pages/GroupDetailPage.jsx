@@ -6,6 +6,26 @@ import Navbar from '../components/Navbar'
 import toast from 'react-hot-toast'
 import { apiService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
+
+// Utility function for proper pluralization
+const pluralize = (count, singular, plural) => {
+  return count === 1 ? `${count} ${singular}` : `${count} ${plural}`
+}
+
+// Utility function for formatting dates consistently
+const formatDate = (dateString) => {
+  if (!dateString) return 'No date set'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 import LoadingSkeleton from '../components/LoadingSkeleton'
 
 const GroupDetailPage = () => {
@@ -415,18 +435,6 @@ const GroupDetailPage = () => {
     }
   }
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'No date set'
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
 
   if (isLoading) {
     return (
@@ -491,24 +499,25 @@ const GroupDetailPage = () => {
 
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
+          {/* Header Section with improved spacing and accessibility */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-12"
           >
             <button
               onClick={() => navigate('/dashboard')}
-              className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
+              className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-lg px-2 py-1"
+              aria-label="Go back to dashboard"
             >
               <ArrowLeft size={20} />
               <span>Back to Dashboard</span>
             </button>
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="flex-1">
-                <div className="flex items-center space-x-4 mb-2">
-                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white font-poppins">
+                <div className="flex items-center space-x-4 mb-4">
+                  <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white font-poppins">
                     {group.name}
                   </h1>
                   {group.created_by === user?.id && (
@@ -524,27 +533,34 @@ const GroupDetailPage = () => {
                           }
                         }
                       }}
-                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      aria-label={`Delete ${group.name} group`}
                       title="Delete group"
                     >
                       <Trash2 size={24} />
                     </button>
                   )}
                 </div>
-                <div className="flex items-center space-x-6 text-gray-600 dark:text-gray-400">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-6 sm:gap-8 text-gray-600 dark:text-gray-400">
                   <div className="flex items-center space-x-2">
-                    <Users size={20} />
-                    <span>{group.members?.length || 0} members</span>
+                    <Users size={20} className="text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium">{pluralize(group.members?.length || 0, 'member', 'members')}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Calendar size={20} />
-                    <span>Created {formatDate(group.created_at)}</span>
+                  <div className="flex flex-col">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Calendar size={20} className="text-gray-500 dark:text-gray-400" />
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</span>
+                    </div>
+                    <div className="ml-7 text-sm font-medium">
+                      {formatDate(group.created_at)}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                {/* Group Code Section */}
+              {/* Action Buttons Section with consistent styling */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Group Code Display */}
                 <div className="flex items-center space-x-3 px-4 py-3 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700">
                   <div className="text-sm">
                     <span className="text-gray-600 dark:text-gray-400">Group Code:</span>
@@ -554,107 +570,113 @@ const GroupDetailPage = () => {
                   </div>
                   <button
                     onClick={copyGroupCode}
-                    className="p-2 hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    aria-label="Copy group code"
                     title="Copy group code"
                   >
-                    <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
+                    <Copy size={16} className="text-gray-600 dark:text-gray-400" />
                   </button>
                 </div>
 
-                {/* Share Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowShareModal(true)}
-                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  <Share2 size={20} />
-                  <span>Share Group</span>
-                </motion.button>
-
-                {/* Chat Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate(`/chat/${groupId}`)}
-                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  <MessageCircle size={20} />
-                  <span>Group Chat</span>
-                </motion.button>
-
-                <div className="flex space-x-3">
+                {/* Primary Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setShowCreateEventModal(true)}
-                    className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    aria-label="Create a new event"
                   >
                     <Plus size={20} />
                     <span>Create Event</span>
                   </motion.button>
 
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setShowCreatePollModal(true)}
-                    className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    aria-label="Create a new poll"
                   >
                     <Vote size={20} />
                     <span>Create Poll</span>
                   </motion.button>
 
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowJoinModal(true)}
-                    className="flex items-center space-x-2 px-6 py-3 border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate(`/chat/${groupId}`)}
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                    aria-label="Open group chat"
                   >
-                    <Users size={20} />
-                    <span>Join Group</span>
+                    <MessageCircle size={20} />
+                    <span>Group Chat</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowShareModal(true)}
+                    className="flex items-center justify-center space-x-2 px-6 py-3 border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white rounded-xl transition-all duration-300 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    aria-label="Share group with others"
+                  >
+                    <Share2 size={20} />
+                    <span>Share Group</span>
                   </motion.button>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Polls Section */}
+          {/* Polls Section with enhanced empty state */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
             className="mb-12"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-poppins">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-poppins">
                 Active Polls
               </h2>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setShowCreatePollModal(true)}
-                className="btn-primary flex items-center space-x-2"
+                className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                aria-label="Create a new poll"
               >
                 <Plus size={20} />
                 <span>Create Poll</span>
-              </button>
+              </motion.button>
             </div>
 
             {polls.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 dark:bg-zinc-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-zinc-700">
-                <Vote size={64} className="mx-auto text-gray-300 dark:text-zinc-600 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              <div className="text-center py-16 px-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-zinc-700">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="w-20 h-20 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+                >
+                  <Vote size={32} className="text-white" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 font-poppins">
                   No polls yet
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Create a poll to gather group opinions!
+                <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg max-w-md mx-auto">
+                  Create a poll to gather group opinions and make decisions together!
                 </p>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setShowCreatePollModal(true)}
-                  className="btn-primary"
+                  className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl mx-auto"
+                  aria-label="Create your first poll"
                 >
-                  Create First Poll
-                </button>
+                  <Plus size={20} />
+                  <span>Create First Poll</span>
+                </motion.button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -729,24 +751,33 @@ const GroupDetailPage = () => {
             )}
           </motion.div>
 
-          {/* Members Section */}
+          {/* Members Section with improved styling */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="mb-12"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-poppins">
-                Group Members ({members.length})
-              </h2>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-4">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-poppins">
+                  Group Members
+                </h2>
+                <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 dark:bg-zinc-700 rounded-full">
+                  <Users size={16} className="text-gray-600 dark:text-gray-400" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {pluralize(members.length, 'member', 'members')}
+                  </span>
+                </div>
+              </div>
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/profile')}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
+                className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                aria-label="Edit your profile"
               >
-                <User size={16} />
+                <User size={18} />
                 <span>Edit Profile</span>
               </motion.button>
             </div>
@@ -954,32 +985,55 @@ const GroupDetailPage = () => {
             </div>
           </motion.div>
 
-          {/* Events Section */}
+          {/* Events Section with enhanced empty state */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="mb-12"
           >
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 font-poppins">
-              Upcoming Events
-            </h2>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-poppins">
+                Upcoming Events
+              </h2>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowCreateEventModal(true)}
+                className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Create a new event"
+              >
+                <Plus size={20} />
+                <span>Create Event</span>
+              </motion.button>
+            </div>
 
             {events.length === 0 ? (
-              <div className="text-center py-12">
-                <Calendar size={64} className="mx-auto text-gray-300 dark:text-zinc-600 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              <div className="text-center py-16 px-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-zinc-700">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+                >
+                  <Calendar size={32} className="text-white" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 font-poppins">
                   No events yet
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Create your first event to get started!
+                <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg max-w-md mx-auto">
+                  Create your first event to start planning amazing group activities!
                 </p>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setShowCreateEventModal(true)}
-                  className="btn-primary"
+                  className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl mx-auto"
+                  aria-label="Create your first event"
                 >
-                  Create Event
-                </button>
+                  <Plus size={20} />
+                  <span>Create First Event</span>
+                </motion.button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

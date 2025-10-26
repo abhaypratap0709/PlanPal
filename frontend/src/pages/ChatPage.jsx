@@ -213,6 +213,35 @@ const ChatPage = () => {
     scrollToBottom()
   }, [messages])
 
+  // Handle scroll containment for chat
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current
+    if (!chatContainer) return
+
+    const handleWheel = (e) => {
+      const chatScrollArea = chatContainer.querySelector('.chat-scroll-container')
+      if (!chatScrollArea) return
+
+      const { scrollTop, scrollHeight, clientHeight } = chatScrollArea
+      const isAtTop = scrollTop === 0
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
+
+      // If scrolling up at top or down at bottom, allow page scroll
+      if ((e.deltaY < 0 && isAtTop) || (e.deltaY > 0 && isAtBottom)) {
+        return // Allow default behavior (page scroll)
+      }
+
+      // Otherwise, prevent page scroll and scroll chat only
+      e.stopPropagation()
+    }
+
+    chatContainer.addEventListener('wheel', handleWheel, { passive: false })
+
+    return () => {
+      chatContainer.removeEventListener('wheel', handleWheel)
+    }
+  }, [])
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -597,10 +626,10 @@ const ChatPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="card h-[650px] flex flex-col overflow-hidden lenis-disabled bg-gradient-to-br from-white via-gray-50 to-white dark:from-zinc-800 dark:via-zinc-800 dark:to-zinc-900"
+                className="card h-[650px] flex flex-col overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white dark:from-zinc-800 dark:via-zinc-800 dark:to-zinc-900"
               >
                 {/* Messages Container */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 chat-scroll-container">
                   {hasMore && (
                     <div className="flex justify-center">
                       <button

@@ -7,6 +7,22 @@ import { useNavigate } from 'react-router-dom'
 import { apiService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
+// Utility function for proper pluralization
+const pluralize = (count, singular, plural) => {
+  return count === 1 ? `${count} ${singular}` : `${count} ${plural}`
+}
+
+// Utility function for formatting dates consistently
+const formatDate = (dateString) => {
+  if (!dateString) return 'No date set'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+
 const DashboardPage = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -151,14 +167,6 @@ const DashboardPage = () => {
     }
   }
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
 
   // Generate color based on group name
   const getGroupColor = (groupName) => {
@@ -380,44 +388,53 @@ const DashboardPage = () => {
           transition={{ duration: 0.3 }}
         >
           <div className="section-container section-padding">
-            {/* Header */}
+            {/* Header Section with improved spacing */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="page-header"
+              className="mb-12"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h1 className="page-title">Your Groups</h1>
-                  <p className="page-subtitle">
-                    Manage your planning groups and start new adventures
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+                <div className="flex-1">
+                  <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-3 font-poppins">
+                    Your Groups
+                  </h1>
+                  <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
+                    Manage your planning groups and start new adventures with friends
                   </p>
                 </div>
-                <div className="flex items-center space-x-3">
+                
+                {/* Action buttons with consistent styling */}
+                <div className="flex flex-col sm:flex-row gap-3">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => navigate('/suggestions')}
-                    className="hidden md:flex items-center space-x-2 px-4 py-2 border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all duration-300"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                    aria-label="Browse activity suggestions"
                   >
                     <Sparkles size={18} />
                     <span>Browse Ideas</span>
                   </motion.button>
+                  
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setShowJoinModal(true)}
-                    className="hidden md:flex items-center space-x-2 px-4 py-2 border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white rounded-xl transition-all duration-300"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white rounded-xl transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                    aria-label="Join an existing group"
                   >
                     <Users size={18} />
                     <span>Join Group</span>
                   </motion.button>
+                  
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setShowCreateModal(true)}
-                    className="hidden md:flex items-center space-x-2 btn-primary"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                    aria-label="Create a new group"
                   >
                     <Plus size={20} />
                     <span>Create Group</span>
@@ -425,8 +442,8 @@ const DashboardPage = () => {
                 </div>
               </div>
 
-              {/* Group Type Tabs */}
-              <div className="flex space-x-1 bg-gray-100 dark:bg-zinc-800 rounded-xl p-1 mb-6">
+              {/* Group Type Filter Tabs with improved accessibility */}
+              <div className="flex space-x-1 bg-gray-100 dark:bg-zinc-800 rounded-xl p-1" role="tablist" aria-label="Group type filter">
                 {[
                   { id: 'all', label: 'All Groups', icon: '📋' },
                   { id: 'personal', label: 'Personal', icon: '👥' },
@@ -435,21 +452,30 @@ const DashboardPage = () => {
                   <button
                     key={tab.id}
                     onClick={() => setGroupTypeFilter(tab.id)}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-medium transition-all duration-300 ${
+                    role="tab"
+                    aria-selected={groupTypeFilter === tab.id}
+                    aria-controls={`${tab.id}-groups`}
+                    className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
                       groupTypeFilter === tab.id
                         ? 'bg-white dark:bg-zinc-700 text-primary-500 shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-700'
                     }`}
                   >
-                    <span>{tab.icon}</span>
+                    <span aria-hidden="true">{tab.icon}</span>
                     <span className="hidden sm:inline">{tab.label}</span>
                   </button>
                 ))}
               </div>
             </motion.div>
 
-            {/* Groups Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-8">
+            {/* Groups Grid Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mb-12"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {isLoading ? (
                 // Loading skeleton
                 Array.from({ length: 6 }).map((_, index) => (
@@ -473,93 +499,110 @@ const DashboardPage = () => {
                   </motion.div>
                 ))
               ) : groups.length === 0 ? (
-                // Empty state
-                <div className="col-span-full flex flex-col items-center justify-center py-12">
-                  <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center mb-4">
+                // Enhanced empty state with better messaging
+                <div className="col-span-full flex flex-col items-center justify-center py-16 px-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring" }}
+                    className="w-24 h-24 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center mb-6 shadow-lg"
+                  >
                     <Users size={32} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  </motion.div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 font-poppins">
                     No groups yet
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-center mb-6 max-w-md">
-                    Create your first group to start planning outings with friends!
+                  <p className="text-gray-600 dark:text-gray-400 text-center mb-8 max-w-md text-lg">
+                    Create your first group to start planning amazing outings with friends and family!
                   </p>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setShowCreateModal(true)}
-                    className="btn-primary"
+                    className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                    aria-label="Create your first group"
                   >
-                    <Plus size={20} className="mr-2" />
-                    Create Your First Group
+                    <Plus size={20} />
+                    <span>Create Your First Group</span>
                   </motion.button>
                 </div>
               ) : (
-                filteredGroups.map((group, index) => {
-                  return (
-                    <motion.div
-                  key={group.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02, y: -8 }}
-                  className="cursor-pointer group"
-                >
-                  <div className="card h-full flex flex-col hover:shadow-2xl transition-all duration-300">
-                    {/* Group Avatar */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className={`w-14 h-14 bg-gradient-to-r ${getGroupColor(group.name)} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow`}>
-                        <span className="text-white font-bold text-xl">
-                          {group.name.charAt(0).toUpperCase()}
-                        </span>
+                filteredGroups.map((group, index) => (
+                  <motion.div
+                    key={group.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    className="group"
+                  >
+                    <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-zinc-700 p-6 h-full flex flex-col">
+                      {/* Group Header */}
+                      <div className="flex items-start justify-between mb-6">
+                        <div className={`w-16 h-16 bg-gradient-to-r ${getGroupColor(group.name)} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow`}>
+                          <span className="text-white font-bold text-xl" aria-hidden="true">
+                            {group.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <button 
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          aria-label={`Settings for ${group.name}`}
+                        >
+                          <Settings size={16} className="text-gray-500" />
+                        </button>
                       </div>
-                      <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg">
-                        <Settings size={16} className="text-gray-500" />
+
+                      {/* Group Info */}
+                      <div className="flex-grow">
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 font-poppins">
+                          {group.name}
+                        </h3>
+                        
+                        {group.description && (
+                          <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm line-clamp-2">
+                            {group.description}
+                          </p>
+                        )}
+
+                        {/* Group Stats */}
+                        <div className="flex items-center justify-between mb-6 pt-4 border-t border-gray-100 dark:border-zinc-700">
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <Users size={16} className="mr-2" />
+                            <span>{pluralize(group.members?.length || 0, 'member', 'members')}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <Calendar size={16} className="mr-2" />
+                            <span>{formatDate(group.created_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <button
+                        onClick={() => group.id && navigate(`/group/${group.id}`)}
+                        className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg group/btn focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                        aria-label={`View details for ${group.name} group`}
+                      >
+                        <span className="font-medium">View Group</span>
+                        <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                       </button>
                     </div>
-
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 font-poppins">
-                      {group.name}
-                    </h3>
-                    
-                    <p className="text-gray-600 dark:text-gray-400 mb-4 flex-grow text-sm">
-                      Group created {formatDate(group.created_at)}
-                    </p>
-
-                    <div className="flex items-center justify-between mb-4 pt-4 border-t border-gray-100 dark:border-zinc-700">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Users size={16} className="mr-1.5" />
-                        {group.members?.length || 0} {(group.members?.length || 0) === 1 ? 'member' : 'members'}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Calendar size={16} className="mr-1.5" />
-                        Created {formatDate(group.created_at)}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => group.id && navigate(`/group/${group.id}`)}
-                      className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg group"
-                    >
-                      <span className="font-medium">View Group</span>
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    </div>
                   </motion.div>
-                  )
-                })
+                ))
               )}
-            </div>
+              </div>
+            </motion.div>
 
             {/* Floating Create Button (Mobile) */}
             <motion.button
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowCreateModal(true)}
-              className="md:hidden fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-40"
+              className="md:hidden fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-40 focus:outline-none focus:ring-4 focus:ring-primary-500 focus:ring-offset-2"
+              aria-label="Create new group"
             >
               <Plus size={24} />
             </motion.button>
@@ -567,7 +610,7 @@ const DashboardPage = () => {
         </motion.div>
       </div>
 
-      {/* Mood Recommendation Modal */}
+      {/* Mood Recommendation Modal with enhanced styling */}
       <AnimatePresence>
         {showMoodModal && (
           <motion.div
@@ -579,6 +622,10 @@ const DashboardPage = () => {
               localStorage.setItem('hasSeenMoodModal', 'true')
               setShowMoodModal(false)
             }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mood-modal-title"
+            aria-describedby="mood-modal-description"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -593,19 +640,19 @@ const DashboardPage = () => {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className="w-20 h-20 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center mx-auto mb-4"
+                  className="w-20 h-20 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
                 >
                   <Sparkles className="text-white" size={36} />
                 </motion.div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 font-poppins">
+                <h2 id="mood-modal-title" className="text-3xl font-bold text-gray-900 dark:text-white mb-3 font-poppins">
                   What's your vibe?
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p id="mood-modal-description" className="text-gray-600 dark:text-gray-400 text-lg">
                   Tell us your preference and we'll personalize recommendations for you
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {moods.map((mood, index) => (
                   <motion.button
                     key={mood.id}
@@ -615,19 +662,21 @@ const DashboardPage = () => {
                     whileHover={{ scale: 1.05, y: -5 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleMoodSelect(mood)}
-                    className={`p-6 rounded-2xl border-2 transition-all duration-300 ${
+                    className={`p-6 rounded-2xl border-2 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary-500 focus:ring-offset-2 ${
                       selectedMood === mood.id
-                        ? `border-primary-500 bg-gradient-to-br ${mood.color} shadow-lg`
-                        : 'border-gray-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-primary-700'
+                        ? `border-primary-500 bg-gradient-to-br ${mood.color} shadow-lg shadow-primary-500/25`
+                        : 'border-gray-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-md'
                     }`}
+                    aria-pressed={selectedMood === mood.id}
+                    aria-describedby={`mood-${mood.id}-desc`}
                   >
-                    <div className={`text-5xl mb-3 ${selectedMood === mood.id ? 'transform scale-110' : ''}`}>
+                    <div className={`text-5xl mb-4 ${selectedMood === mood.id ? 'transform scale-110' : ''}`} aria-hidden="true">
                       {mood.emoji}
                     </div>
                     <h3 className={`text-xl font-bold mb-2 ${selectedMood === mood.id ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                       {mood.label}
                     </h3>
-                    <p className={`text-sm ${selectedMood === mood.id ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'}`}>
+                    <p id={`mood-${mood.id}-desc`} className={`text-sm ${selectedMood === mood.id ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'}`}>
                       {mood.desc}
                     </p>
                   </motion.button>
@@ -640,7 +689,7 @@ const DashboardPage = () => {
                     localStorage.setItem('hasSeenMoodModal', 'true')
                     setShowMoodModal(false)
                   }}
-                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 rounded-lg px-4 py-2"
                 >
                   Maybe later
                 </button>

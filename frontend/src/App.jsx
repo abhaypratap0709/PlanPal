@@ -145,6 +145,9 @@ function App() {
       infinite: false,
       autoResize: true,
       preventDefault: false, // Prevent conflicts with native scroll
+      // Exclude chat containers from Lenis
+      wrapper: window,
+      content: document.body,
     })
 
     lenisRef.current = lenis

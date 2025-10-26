@@ -23,7 +23,7 @@ const Navbar = memo(() => {
       initial={{ y: shouldReduceMotion ? 0 : -100 }}
       animate={{ y: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-200 dark:border-zinc-700 transition-colors duration-300"
+      className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-300 dark:border-zinc-600 transition-colors duration-300"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -123,7 +123,7 @@ const Navbar = memo(() => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-gray-200 dark:border-zinc-700"
+            className="md:hidden border-t border-gray-300 dark:border-zinc-600"
           >
             <div className="py-4 space-y-4">
               {user ? (
